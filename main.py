@@ -37,6 +37,11 @@ class railWayAnalyzer:
 
     @staticmethod
     def toContrast(image, contrast=127):
+        """
+        :param image: image
+        :param contrast: contrast
+        :return: image with adjusted contrast (for bright images)
+        """
         f = 131 * (contrast + 127) / (127 * (131 - contrast))
         alpha_c = f
         gamma_c = 127 * (1 - f)
@@ -51,6 +56,11 @@ class railWayAnalyzer:
 
     @staticmethod
     def adjustContrast(image, contrast=127):
+        """
+        :param image: image
+        :param contrast: contrast
+        :return: image with adjusted contrast
+        """
         f = 131 * (contrast + 127) / (127 * (131 - contrast))
         alpha_c = f
         gamma_c = 127 * (1 - f)
@@ -62,6 +72,11 @@ class railWayAnalyzer:
 
     @staticmethod
     def toThreshold(image, spec):
+        """
+        :param image: image
+        :param spec: image has lots of white
+        :return: binary image
+        """
         gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
         if spec:
             ret, threshold_image = cv2.threshold(gray, 230, 255, cv2.THRESH_BINARY)
@@ -193,6 +208,10 @@ class railWayAnalyzer:
 
     @staticmethod
     def whitePercent(image):
+        """
+        :param image: image
+        :return: calculate percent of white pixels
+        """
         f = 131 * (127 + 127) / (127 * (131 - 127))
         alpha_c = f
         gamma_c = 127 * (1 - f)
@@ -278,6 +297,9 @@ class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.listWidget.itemClicked.connect(self.setImage)
 
     def setImage(self, item):
+        """
+        :param item: clicked item
+        """
         image = cv2.imread(TEMP + IMG_NUM + "_canny.bmp")
         text = str(item.text())
         if text == "Original":

@@ -12,6 +12,9 @@ from PyQt5 import QtCore, QtWidgets
 class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
+        """
+        :param MainWindow: UI window
+        """
         MainWindow.setObjectName("RailWay finder")
         MainWindow.resize(683, 686)
 
@@ -41,6 +44,9 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
+        """
+        :param MainWindow: UI window
+        """
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("RailWay finder", "RailWay finder"))
         self.label.setText(_translate("RailWay finder", "Здесь будет ваше изображение"))

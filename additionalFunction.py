@@ -7,24 +7,56 @@ TEMP = "tmp/"
 
 
 def saveFile(file, fileName):
+    """
+    :param file: file to save
+    :param fileName: name of file
+    """
     cv2.imwrite(TEMP + fileName, file)
 
 
 def saveFileFinal(file, fileName):
+    """
+    :param file: file to save
+    :param fileName: name of file
+    Save file to main directory
+    """
     cv2.imwrite(fileName, file)
 
 
 def canny(img, low_threshold, high_threshold):
+    """
+    :param img: image to analyze
+    :param low_threshold: low threshold
+    :param high_threshold: high threshold
+    :return: image with canny algorithm used
+    """
     return cv2.Canny(img, low_threshold, high_threshold)
 
 
 def get_hough_lines(img, rho=1, theta=np.pi / 180, threshold=90, min_line_len=130, max_line_gap=6):
+    """
+    :param img: image to analyze
+    :param rho: rho
+    :param theta: theta
+    :param threshold: threshold
+    :param min_line_len: minimal length of line
+    :param max_line_gap: maximum gap between lines
+    :return: hough lines
+    """
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]),
                             minLineLength=min_line_len, maxLineGap=max_line_gap)
     return lines
 
 
 def draw_lines(img, lines, height, color=None, thickness=2):
+    """
+    :param img: image to draw on
+    :param lines: lines to draw
+    :param height: height of image
+    :param color: color of lines
+    :param thickness: thickness of lines
+    :return: new image
+    """
     # print(height)
     if color is None:
         color = [0, 0, 255]
@@ -134,6 +166,10 @@ def draw_lines(img, lines, height, color=None, thickness=2):
 
 
 def get_aoi(img):
+    """
+    :param img: image to analyze
+    :return: image with deleted uninteresting area
+    """
     rows, cols = img.shape[:2]
     mask = np.zeros_like(img)
 
