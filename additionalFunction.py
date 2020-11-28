@@ -82,7 +82,7 @@ def draw_lines(img, lines, height, color=None, thickness=2):
                 group = xCoordGroup[a]
                 midC = (vertical_lines[i][0][2] + vertical_lines[i][0][0]) / 2
                 midG = (vertical_lines[group][0][2] + vertical_lines[group][0][0]) / 2
-                if (abs(midG - midC) < 90) and \
+                if (abs(midG - midC) < 100) and \
                         ((vertical_lines[i][0][1] - vertical_lines[i][0][3])
                          * (vertical_lines[group][0][1] - vertical_lines[group][0][3]) > 0):
                     minY2 = min(vertical_lines[i][0][3], vertical_lines[group][0][3])
@@ -160,7 +160,6 @@ def draw_lines(img, lines, height, color=None, thickness=2):
                     else:
                         y1 = int(height)
                         y2 = int(min_y)
-
                 cv2.line(img, (x1, y1), (x2, y2), color, thickness)
     return img, mode
 
