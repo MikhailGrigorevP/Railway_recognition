@@ -13,6 +13,12 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         """
+        Create UI for application
+        :var mw: Main window
+        centralwidget: inner windget
+        label: image holder
+        listWidget: list of image analyzer stages (clickable)
+        fileButton: button to load image
         :param MainWindow: UI window
         """
         MainWindow.setObjectName("RailWay finder")

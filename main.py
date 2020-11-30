@@ -1,24 +1,26 @@
-# for read file os
+# import libraries
+# for reading files
 import os
-import sys
-
+# for timing
+import time
 # to analyze type
 import filetype
-# for QT
+# for graphic interface
+import sys
 from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QListWidgetItem
-
 import design
+
 from additionalFunction import *
 
-# for computer vision
-# To compile QT.ui file to Python code use:
-# pyuic5 untitled.ui -o mainOld.py
-# Create exe
-# pyinstaller mainOld.py --onefile --noconsole
+# Для компиляции файла из .ui в .py
+# pyuic5 main.ui -o main.py
 
-# constants
+# Компиляция .exe файла
+# pip install pyinstaller
+# pyinstaller main.py --onefile --noconsole [-exclude названиеБиблиотеки]
 
+# Константы
 SOURCE = "source/"
 TEMP = "tmp/"
 IMG_NUM = "3"
@@ -29,15 +31,10 @@ os.makedirs("tmp/", exist_ok=True)
 
 class railWayAnalyzer:
 
-    # @staticmethod
-    # def toHLS(image):
-    #     hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
-    #     saveFile(hls, IMG_NUM + '_hls.bmp')
-    #     return hls
-
     @staticmethod
     def toContrast(image, contrast=127):
         """
+        Увеличение контраста изображения с высоким порогом
         :param image: image
         :param contrast: contrast
         :return: image with adjusted contrast (for bright images)
@@ -57,6 +54,7 @@ class railWayAnalyzer:
     @staticmethod
     def adjustContrast(image, contrast=127):
         """
+        Увеличение контраста изображения
         :param image: image
         :param contrast: contrast
         :return: image with adjusted contrast
@@ -73,6 +71,7 @@ class railWayAnalyzer:
     @staticmethod
     def toThreshold(image, spec):
         """
+        Установление порога
         :param image: image
         :param spec: image has lots of white
         :return: binary image
@@ -87,21 +86,9 @@ class railWayAnalyzer:
         return threshold_image
 
     @staticmethod
-    def darken(image, gamma=1.0):
-        """
-        :param image: Исходное изображение (в формате GRAY)
-        :param gamma: V_out = A * V_in^gamma
-        :return: чёрно-белое изображение с гамма-коррекцией
-        """
-        table = np.array([((i / 255.0) ** gamma) * 255
-                          for i in np.arange(0, 256)]).astype("uint8")
-        darkened = cv2.LUT(image, table)
-        saveFile(darkened, IMG_NUM + '_darkened.bmp')
-        return darkened
-
-    @staticmethod
     def grayScale(image):
         """
+        Перевод изображения в оттенки серого
         :param image: Исходное изображение (в формате BGR)
         :return: Изображение, преобразованное из формата BGR в оттенки серого
         """
@@ -112,6 +99,7 @@ class railWayAnalyzer:
     @staticmethod
     def colorMask(img, low_thresh, high_thresh):
         """
+        Цветовой фильтр
         :param img: Исходное изображение
         :param low_thresh: Низкий порог
         :param high_thresh: Высокий порог
@@ -121,24 +109,10 @@ class railWayAnalyzer:
         assert (0 <= high_thresh.all() <= 255)
         return cv2.inRange(img, low_thresh, high_thresh)
 
-    def colorSelection(self, image, darkened, desc):
-        """
-        :param desc: Описание изображения маски
-        :param image: Исходное изображение
-        :param darkened: Затемнённое изображение
-        :return: Изображение под маской
-        """
-        white_masks = \
-            self.colorMask(image, np.array([150, 150, 150], dtype=np.uint8), np.array([255, 255, 255], dtype=np.uint8))
-        # mask = cv2.bitwise_or(white_masks, white_masks)
-        mask = white_masks
-        masked = cv2.bitwise_and(darkened, darkened, mask=mask)
-        saveFile(masked, IMG_NUM + '_masked_' + desc + '.bmp')
-        return masked
-
     @staticmethod
     def gaussianBlur(image, kernelSize=11):
         """
+        Применение размытия по Гауссу
         :param kernelSize: Размер ядра
         :param image: Исходное изображение
         :return: Изображение с размытие по Гауссу
@@ -150,14 +124,12 @@ class railWayAnalyzer:
     @staticmethod
     def cannyDetector(image, low=150, high=200):
         """
-        :param high:
-        :param low:
+        Детектор Кэнни
+        :param high: Высокий порог
+        :param low: Нижний порог
         :param image: Исходное изображение
         :return: Применённый детектор Кэнни
         """
-        # med_val = np.median(image)
-        # low = int(max(0, 0.6 * med_val))
-        # high = int(min(255, 1.4 * med_val))
         detectedEdges = canny(image, low_threshold=low, high_threshold=high)
         saveFile(detectedEdges, IMG_NUM + '_canny.bmp')
 
@@ -166,15 +138,16 @@ class railWayAnalyzer:
     @staticmethod
     def useSobel(image, kernel=3):
         """
-        :param kernel:
+        Ядро собеля
+        :param kernel: Ядро матрицы
         :param image: Исходное изображение
         :return: Применённый детектор Кэнни
         """
 
-        grad_x = cv2.Sobel(image, cv2.CV_8U, 1, 0, ksize=kernel)
-        saveFile(grad_x, IMG_NUM + '_sobel.bmp')
+        sobel = cv2.Sobel(image, cv2.CV_8U, 1, 0, ksize=kernel)
+        saveFile(sobel, IMG_NUM + '_sobel.bmp')
 
-        abs_sobel64f = np.absolute(grad_x)
+        abs_sobel64f = np.absolute(sobel)
         sobel_x = np.uint8(abs_sobel64f)
 
         return sobel_x
@@ -182,8 +155,9 @@ class railWayAnalyzer:
     @staticmethod
     def areaOfInterest(image):
         """
+        Вычисление зоны обработки
         :param image: Исходное изображение
-        :return:
+        :return: Зона обработки
         """
         aoi = get_aoi(image)
         saveFile(aoi, IMG_NUM + '_AOI.bmp')
@@ -192,6 +166,7 @@ class railWayAnalyzer:
     @staticmethod
     def houghTransformLineDetection(origImage, image, mode=False):
         """
+        Трансформация Хафа
         :param mode:
         :param origImage:
         :param image: Исходное изображение
@@ -209,6 +184,7 @@ class railWayAnalyzer:
     @staticmethod
     def whitePercent(image):
         """
+        Вычисление процента белого цвета
         :param image: image
         :return: calculate percent of white pixels
         """
@@ -223,13 +199,18 @@ class railWayAnalyzer:
         return nonzero / float(imgSize) * 100
 
     def __init__(self, fileName, window):
+        self.start = time.time()
+
+        # Чтение изображения
         image = cv2.imread(fileName)
         window.addListWidgetButton(QListWidgetItem('Original'))
 
+        # Выделение имени изображения
         name = fileName.split("/")
         name = name[len(name)-1].split(".")
         self.name = name[0]
 
+        # Количество белого
         res = self.whitePercent(image)
 
         spec = False
@@ -241,6 +222,8 @@ class railWayAnalyzer:
 
         try_to_analyze = True
         mode = False
+
+        # Обработка изображения
         while try_to_analyze:
 
             if mode:
@@ -285,6 +268,9 @@ class railWayAnalyzer:
                 image = cv2.imread("tmp/3_hought.bmp")
                 window.drawImage(image)
 
+        self.end = time.time()
+        print("Ended in: ", self.end - self.start)
+
 
 class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def __init__(self):
@@ -298,7 +284,8 @@ class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def setImage(self, item):
         """
-        :param item: clicked item
+        Установка изображения на экран приложения
+        :param item: нажатый элемент
         """
         image = cv2.imread(TEMP + IMG_NUM + "_canny.bmp")
         text = str(item.text())
@@ -332,6 +319,10 @@ class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         pass
 
     def drawImage(self, image):
+        """
+        Рисование изображения
+        :param image: Исходное изображение
+        """
         self.mw.setFixedSize(image.shape[1], image.shape[0])
         image = QtGui.QImage(image.data,
                              image.shape[1],
@@ -341,6 +332,9 @@ class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.label.setPixmap(pm)
 
     def openFile(self):
+        """
+        Открытие файла
+        """
         # На случай, если в списке уже есть элементы
         self.listWidget.clear()
         fileName = QtWidgets.QFileDialog.getOpenFileName(self, "Выберите файл")[0]

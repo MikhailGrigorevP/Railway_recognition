@@ -1,5 +1,4 @@
 import math
-
 import cv2
 import numpy as np
 
@@ -8,40 +7,43 @@ TEMP = "tmp/"
 
 def saveFile(file, fileName):
     """
-    :param file: file to save
-    :param fileName: name of file
+    Сохранение временных файлов
+    :param file: Файл для сохранение
+    :param fileName: Имя файла
     """
     cv2.imwrite(TEMP + fileName, file)
 
 
 def saveFileFinal(file, fileName):
     """
-    :param file: file to save
-    :param fileName: name of file
-    Save file to main directory
+    Сохранение файла в основную директорию
+    :param file: Файл для сохранение
+    :param fileName: Имя файла
     """
     cv2.imwrite(fileName, file)
 
 
 def canny(img, low_threshold, high_threshold):
     """
-    :param img: image to analyze
-    :param low_threshold: low threshold
-    :param high_threshold: high threshold
-    :return: image with canny algorithm used
+    Детектор Кэнни
+    :param img: Изображение для обработки
+    :param low_threshold: Нижний порог
+    :param high_threshold: Высокий порог
+    :return: Изображение
     """
     return cv2.Canny(img, low_threshold, high_threshold)
 
 
 def get_hough_lines(img, rho=1, theta=np.pi / 180, threshold=90, min_line_len=130, max_line_gap=6):
     """
-    :param img: image to analyze
+    Получить линии Хафа
+    :param img: Изображение для обработки
     :param rho: rho
     :param theta: theta
-    :param threshold: threshold
-    :param min_line_len: minimal length of line
-    :param max_line_gap: maximum gap between lines
-    :return: hough lines
+    :param threshold: Порог
+    :param min_line_len: Минимальная длина линий
+    :param max_line_gap: Максимальное расстояние между линиями
+    :return: Линии Хафа
     """
     lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]),
                             minLineLength=min_line_len, maxLineGap=max_line_gap)
@@ -50,12 +52,13 @@ def get_hough_lines(img, rho=1, theta=np.pi / 180, threshold=90, min_line_len=13
 
 def draw_lines(img, lines, height, color=None, thickness=2):
     """
-    :param img: image to draw on
-    :param lines: lines to draw
-    :param height: height of image
-    :param color: color of lines
-    :param thickness: thickness of lines
-    :return: new image
+    Отрисовка линий на изображении
+    :param img: изображение, на котором нужно рисовать
+    :param lines: линии для отрисовки
+    :param height: высота изображения
+    :param color: цвет линии
+    :param thickness: толщина линий
+    :return: Новое изображение
     """
     # print(height)
     if color is None:
@@ -68,6 +71,7 @@ def draw_lines(img, lines, height, color=None, thickness=2):
             # print(vertical, x1, y1, x2, y2)
             if vertical:
                 vertical_lines.append(line)
+            # Отрисовка образующих
             # cv2.line(img, (x1, y1), (x2, y2), color2, thickness)
     min_y = height
 
@@ -166,6 +170,7 @@ def draw_lines(img, lines, height, color=None, thickness=2):
 
 def get_aoi(img):
     """
+    Получение область обработки изображения
     :param img: image to analyze
     :return: image with deleted uninteresting area
     """
