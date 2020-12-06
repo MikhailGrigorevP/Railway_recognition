@@ -173,13 +173,18 @@ class railWayAnalyzer:
         :return:
         """
         line = get_hough_lines(image)
-        hough, mode2 = draw_lines(origImage, line, height=image.shape[0])
-
-        # if mode:
-        #     line = get_hough_lines(image, rho=1, theta=np.pi/180, threshold=80, min_line_len=150, max_line_gap=9)
-        #     hough, mode = draw_lines(origImage, line, height=image.shape[0])
+        if line is not None:
+            everythingIsBad = False
+            hough, mode2 = draw_lines(origImage, line, height=image.shape[0])
+            #if mode:
+            #    line = get_hough_lines(image, rho=1, theta=np.pi/180, threshold=90, min_line_len=130, max_line_gap=9)
+            #    hough, mode = draw_lines(origImage, line, height=image.shape[0])
+        else:
+            everythingIsBad = True
+            hough = image
+            mode2 = False
         saveFile(hough, IMG_NUM + '_hought.bmp')
-        return hough, mode2
+        return hough, mode2, everythingIsBad
 
     @staticmethod
     def whitePercent(image):
@@ -207,7 +212,7 @@ class railWayAnalyzer:
 
         # Выделение имени изображения
         name = fileName.split("/")
-        name = name[len(name)-1].split(".")
+        name = name[len(name) - 1].split(".")
         self.name = name[0]
 
         # Количество белого
@@ -255,21 +260,25 @@ class railWayAnalyzer:
             aoi = self.areaOfInterest(detected)
             window.addListWidgetButton(QListWidgetItem('AOI'))
 
-            hough, modeF = self.houghTransformLineDetection(image, aoi, mode)
+            hough, modeF, everythingIsBad = self.houghTransformLineDetection(image, aoi, mode)
             window.addListWidgetButton(QListWidgetItem('Hought'))
 
-            saveFileFinal(hough, self.name+".jpeg")
+            saveFileFinal(hough, self.name + ".jpeg")
 
-            if modeF and not mode:
-                mode = True
-                try_to_analyze = True
+            if not everythingIsBad:
+                if modeF and not mode:
+                    mode = True
+                    try_to_analyze = True
+                else:
+                    try_to_analyze = False
+                    image = cv2.imread("tmp/3_hought.bmp")
+                    window.drawImage(image)
             else:
                 try_to_analyze = False
                 image = cv2.imread("tmp/3_hought.bmp")
-                window.drawImage(image)
-
+                window.errorAnalyze()
         self.end = time.time()
-        print("Ended in: ", self.end - self.start)
+        print("INFO:root:timing:", self.end - self.start)
 
 
 class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
@@ -325,17 +334,25 @@ class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         """
         width = image.shape[1]
         height = image.shape[0]
-        #self.mw.setFixedSize(width, height)
-        image = QtGui.QImage(image.data,
+        # self.mw.setFixedSize(width, height)
+        try:
+            image = QtGui.QImage(image.data,
                              width,
                              height,
                              QtGui.QImage.Format_RGB888).rgbSwapped()
+
+        except Exception:
+            print(Exception)
         pm = QtGui.QPixmap.fromImage(image)
         self.label.setScaledContents(True)
-        self.label.setMinimumSize(width//2, height//2)
+        self.label.setMinimumSize(width // 2, height // 2)
         self.label.setMaximumSize(width, height)
-        self.mw.resize(width//2, height//2)
+        self.mw.resize(width // 2, height // 2)
         self.label.setPixmap(pm)
+
+    def errorAnalyze(self):
+        self.listWidget.clear()
+        self.listWidget.addItem(QListWidgetItem('Рельсы на изображении не найдены'))
 
     def openFile(self):
         """

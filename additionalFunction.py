@@ -50,7 +50,7 @@ def get_hough_lines(img, rho=1, theta=np.pi / 180, threshold=90, min_line_len=13
     return lines
 
 
-def draw_lines(img, lines, height, color=None, thickness=2):
+def draw_lines(img, lines, height, color=None, thickness=3):
     """
     Отрисовка линий на изображении
     :param img: изображение, на котором нужно рисовать
