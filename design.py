@@ -38,6 +38,7 @@ class Ui_MainWindow(object):
 
         self.listWidget = QtWidgets.QListWidget(self.centralwidget)
         self.listWidget.setObjectName("listWidget")
+        self.listWidget.setMinimumSize(self.mw.frameGeometry().width(), self.mw.frameGeometry().height()//4)
         self.verticalLayout.addWidget(self.listWidget)
 
         self.fileButton = QtWidgets.QPushButton(self.centralwidget)

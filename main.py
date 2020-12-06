@@ -323,12 +323,18 @@ class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
         Рисование изображения
         :param image: Исходное изображение
         """
-        self.mw.setFixedSize(image.shape[1], image.shape[0])
+        width = image.shape[1]
+        height = image.shape[0]
+        #self.mw.setFixedSize(width, height)
         image = QtGui.QImage(image.data,
-                             image.shape[1],
-                             image.shape[0],
+                             width,
+                             height,
                              QtGui.QImage.Format_RGB888).rgbSwapped()
         pm = QtGui.QPixmap.fromImage(image)
+        self.label.setScaledContents(True)
+        self.label.setMinimumSize(width//2, height//2)
+        self.label.setMaximumSize(width, height)
+        self.mw.resize(width//2, height//2)
         self.label.setPixmap(pm)
 
     def openFile(self):
