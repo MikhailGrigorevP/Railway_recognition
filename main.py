@@ -59,6 +59,8 @@ class railWayAnalyzer:
         :param contrast: contrast
         :return: image with adjusted contrast
         """
+        # contrast correction factor = (259 * (contrast + 255)) / (255 * (259 - contrast))
+        # contrast correction factor adapted to GIMP is
         f = 131 * (contrast + 127) / (127 * (131 - contrast))
         alpha_c = f
         gamma_c = 127 * (1 - f)
@@ -218,6 +220,8 @@ class railWayAnalyzer:
         # Количество белого
         res = self.whitePercent(image)
 
+        print("INFO:root:whitepercent", res, "%")
+
         spec = False
         if res > 60.0:
             spec = True
@@ -278,7 +282,7 @@ class railWayAnalyzer:
                 image = cv2.imread("tmp/3_hought.bmp")
                 window.errorAnalyze()
         self.end = time.time()
-        print("INFO:root:timing:", self.end - self.start)
+        print("INFO:root:timing:", self.end - self.start, "s")
 
 
 class railWayWindow(QtWidgets.QMainWindow, design.Ui_MainWindow):
